@@ -6,4 +6,8 @@
     <string name="password">Password</string>
     <string name="repeatPass">Repeat Password</string>
     <string name="email">Email</string>
+    <string-array name="roles">
+        <item>Regular User</item>
+        <item>Administrator</item>
+    </string-array>
 </resources>

@@ -84,7 +84,7 @@
         app:layout_constraintTop_toBottomOf="@+id/et_email" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/et_repeat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
@@ -97,17 +97,18 @@
         android:inputType="textPassword"
         android:textColor="@color/textIcons"
         android:textColorHighlight="@color/textIcons"
-        android:textColorHint="@color/textIcons"
+        android:textColorHint="@color/colorPrimaryLight"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_pass" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btn_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginLeft="30dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
         android:background="@color/colorPrimaryDark"
@@ -116,13 +117,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="511dp" />
+        app:layout_constraintTop_toBottomOf="@+id/sp_role" />
 
     <Spinner
-        android:id="@+id/spinner"
+        android:id="@+id/sp_role"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
         android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/editText4"
-        tools:layout_editor_absoluteX="0dp" />
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:alpha=".8"
+        android:background="@color/textIcons"
+        android:entries="@array/roles"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_repeat" />
 </androidx.constraintlayout.widget.ConstraintLayout>
