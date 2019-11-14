@@ -112,6 +112,7 @@
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
         android:background="@color/colorPrimaryDark"
+        android:onClick="registerClicked"
         android:text="@string/register"
         android:textColor="@color/textIcons"
         app:layout_constraintEnd_toEndOf="parent"

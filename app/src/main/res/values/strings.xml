@@ -10,4 +10,15 @@
         <item>Regular User</item>
         <item>Administrator</item>
     </string-array>
+    <string name="usernameCheck">Please fill in the username field!</string>
+    <string name="emailCheck">Please fill in the email field!</string>
+    <string name="passCheck">Please fill in the password field!</string>
+    <string name="passLength">Password should be at least 6 characters long!</string>
+    <string name="repeatCheck">The passwords do not match!</string>
+    <string name="usernameUsed">The username is in use! Please choose another one!</string>
+    <string name="congrats">Congratulations! You registered successfully!</string>
+    <string name="fail">Oops! Something went wrong! Please try again!</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

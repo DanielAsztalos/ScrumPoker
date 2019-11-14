@@ -7,6 +7,7 @@ public class Group {
     private String code;
     private String groupName;
     private ArrayList<Question> questions;
+    private ArrayList<User> users;
 
     public Group() {
         this.questions = new ArrayList<>();
@@ -50,5 +51,17 @@ public class Group {
 
     public void removeQuestion(Question question) {
         this.questions.remove(question);
+    }
+
+    public ArrayList<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(ArrayList<User> users) {
+        this.users = users;
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
     }
 }
