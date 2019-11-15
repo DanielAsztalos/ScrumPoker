@@ -3,6 +3,7 @@ package com.example.scrumpoker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
@@ -12,7 +13,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.scrumpoker.fragments.LoginFragment;
 import com.example.scrumpoker.fragments.RegisterFragment;
+import com.example.scrumpoker.fragments.StartFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.helpers.Encrypt;
 import com.example.scrumpoker.model.Role;
@@ -24,6 +27,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
+
+import java.util.EmptyStackException;
 
 import javax.crypto.SecretKey;
 
@@ -39,10 +44,10 @@ public class MainActivity extends FragmentActivity {
                 return;
             }
 
-            RegisterFragment firstFragment = new RegisterFragment();
+            StartFragment firstFragment = new StartFragment();
 
             firstFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment, "start").commit();
         }
     }
 
@@ -96,16 +101,70 @@ public class MainActivity extends FragmentActivity {
         user.setEmail(email);
 
         try{
-            SecretKey generatedKey = Encrypt.generateKey();
-            user.setPassword(Encrypt.encryptPass(password, generatedKey).toString());
+//            SecretKey generatedKey = Encrypt.generateKey();
+//            user.setPassword(Encrypt.encryptPass(password, generatedKey).toString());
+            user.setPassword(Encrypt.md5(password));
         }catch (Exception e){
             Log.d("ENCRYPT", "Error happened while generating secret key" + e.getMessage());
         }
 
         user.setRole(role);
 
-
-//        DatabaseTransactions.registerUser(user, getApplicationContext());
+        // Check if username is used and if not than save user to the database
         DatabaseTransactions.checkBeforeSave(user, getApplicationContext(), getSupportFragmentManager().beginTransaction());
+    }
+
+    public void loginClicked(View view) {
+        String username = ((EditText) findViewById(R.id.et_login_name)).getText().toString();
+        if(username == null || username.length() == 0) {
+            Toast.makeText(this, getText(R.string.usernameCheck), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String pass = ((EditText) findViewById(R.id.et_login_pass)).getText().toString();
+        if(pass == null || pass.length() == 0) {
+            Toast.makeText(this, getText(R.string.passCheck), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        DatabaseTransactions.userLogin(username, pass, getApplicationContext());
+    }
+
+    public void registerStartClcked(View view) {
+        if(findViewById(R.id.fragment_container) != null) {
+
+            RegisterFragment firstFragment = new RegisterFragment();
+
+            firstFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment, "register").commit();
+        }
+    }
+
+    public void loginStartClcked(View view) {
+        if(findViewById(R.id.fragment_container) != null) {
+
+            LoginFragment firstFragment = new LoginFragment();
+
+            firstFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment, "login").commit();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        Fragment myFragment = (Fragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if(myFragment instanceof StartFragment) {
+            super.onBackPressed();
+        }
+        else{
+            if(findViewById(R.id.fragment_container) != null) {
+
+                StartFragment firstFragment = new StartFragment();
+
+                firstFragment.setArguments(getIntent().getExtras());
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment, "start").commit();
+            }
+        }
     }
 }
