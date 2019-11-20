@@ -8,7 +8,7 @@ public class User {
     private String email;
     private String password;
     private Role role;
-    private ArrayList<Integer> groupIds;
+    private ArrayList<String> groupIds;
 
     public User() {
         this.groupIds = new ArrayList<>();
@@ -38,19 +38,19 @@ public class User {
         this.role = role;
     }
 
-    public ArrayList<Integer> getGroupIds() {
+    public ArrayList<String> getGroupIds() {
         return groupIds;
     }
 
-    public void setGroupIds(ArrayList<Integer> groupIds) {
+    public void setGroupIds(ArrayList<String> groupIds) {
         this.groupIds = groupIds;
     }
 
-    public void addGroupId(int id) {
+    public void addGroupId(String id) {
         this.groupIds.add(id);
     }
 
-    public void removeGroupId(int id) {
+    public void removeGroupId(String id) {
         this.groupIds.remove(id);
     }
 

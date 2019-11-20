@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +41,13 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
+        if(sharedPreferences.contains("username") && sharedPreferences.contains("email")
+            && sharedPreferences.contains("role")){
+            Intent intent = new Intent(this, MainSectionActivity.class);
+            startActivity(intent);
+        }
 
         if(findViewById(R.id.fragment_container) != null) {
             if(savedInstanceState != null) {

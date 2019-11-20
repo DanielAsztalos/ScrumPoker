@@ -9,10 +9,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
+import com.example.scrumpoker.adapter.GroupAdapter;
 import com.example.scrumpoker.fragments.LoginFragment;
+import com.example.scrumpoker.model.Group;
 import com.example.scrumpoker.model.Role;
 import com.example.scrumpoker.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,7 +32,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
 
 public class DatabaseTransactions {
 
@@ -123,6 +130,7 @@ public class DatabaseTransactions {
 
                             SharedPreferences shared = context.getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = shared.edit();
+                            editor.putInt("id", user.getId());
                             editor.putString("username", user.getUsername());
                             editor.putString("email", user.getEmail());
                             editor.putString("role", role);
@@ -134,15 +142,166 @@ public class DatabaseTransactions {
                         }
                         else{
                             Toast.makeText(context, context.getText(R.string.wrong),
-                                    Toast.LENGTH_LONG);
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
                     else{
                         Toast.makeText(context, context.getText(R.string.wrong),
-                                Toast.LENGTH_LONG);
+                                Toast.LENGTH_LONG).show();
                     }
                 }
             }
         });
+    }
+
+    public static String generateKey() {
+        StringBuilder key = new StringBuilder();
+        Random randnum = new Random();
+        int n;
+        for (int i = 0; i < 6; i++) {
+            n = randnum.nextInt(10);
+            while(i == 0 && n == 0){
+                n = randnum.nextInt(10);
+            }
+            key.append(n);
+        }
+        return key.toString();
+    }
+
+    public static void saveGroup(final Group group, final Context context, final int userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final DocumentReference groupIds = db.collection("counters").document("group_ids");
+        final CollectionReference groups = db.collection("groups");
+        final DocumentReference user = db.collection("users").document(String.valueOf(userId));
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                List<String> ids = (List<String>) transaction.get(groupIds).get("ids");
+                User user1 = transaction.get(user).toObject(User.class);
+                Log.d("CHECK", user1.getUsername() + " " + userId + " " + ids.toString());
+                String key;
+                boolean keyOK = true;
+
+                do{
+                    key = DatabaseTransactions.generateKey();
+                    if(ids.contains(key)) {
+                        keyOK = false;
+                    }
+                }while(!keyOK);
+
+                ids.add(key);
+                Log.d("LOL", ids.toString());
+                transaction.update(groupIds, "ids", ids);
+
+                group.setCode(key);
+                groups.document(key).set(group);
+
+                user1.addGroupId(key);
+
+                transaction.update(user, "groupIds", user1.getGroupIds());
+
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                MainSectionActivity mainSectionActivity = (MainSectionActivity) context;
+                mainSectionActivity.updateGroupAdapter();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("FAIL", e.getMessage());
+            }
+        });
+    }
+
+    public static void getGroups(final Context context, final RecyclerView rv_groups, final GroupAdapter adapter) {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
+        final DocumentReference user = db.collection("users").document(String.valueOf(
+                sharedPreferences.getInt("id", -1)
+        ));
+        final List<Group> groups = new ArrayList<Group>();
+
+        user.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot){
+                final User u = documentSnapshot.toObject(User.class);
+                List<String> gIds = new ArrayList<>();
+                for(String id : u.getGroupIds()) {
+                    gIds.add(String.valueOf(id));
+                }
+                if(!gIds.isEmpty()) {
+                    db.collection("groups").whereIn("code", gIds).get()
+                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    for(DocumentSnapshot ds: queryDocumentSnapshots) {
+                                        groups.add(ds.toObject(Group.class));
+                                    }
+                                    Log.d("HALF_SUCCESS", groups.toString());
+                                    GroupAdapter adapter = new GroupAdapter(context, groups);
+                                    rv_groups.setAdapter(adapter);
+                                }
+                            });
+                }
+                else{
+                    GroupAdapter adapter = new GroupAdapter(context, groups);
+                    rv_groups.setAdapter(adapter);
+                }
+            }
+        });
+
+
+    }
+
+    public static void deleteGroup(final Group group, final Context context) {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final DocumentReference groupCounters = db.collection("counters").document("group_ids");
+        final DocumentReference groupRef = db.collection("groups").document(group.getCode());
+        db.collection("users").whereArrayContains("groupIds", group.getCode()).get().addOnSuccessListener(
+                new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(final QuerySnapshot queryDocumentSnapshots) {
+                        db.runTransaction(new Transaction.Function<Void>() {
+                            @Nullable
+                            @Override
+                            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                                List<User> usersWithinGroup = (List<User>) queryDocumentSnapshots.toObjects(User.class);
+                                List<String> groupIds = (List<String>)transaction.get(groupCounters).get("ids");
+
+                                groupIds.remove(group.getCode());
+                                transaction.update(groupCounters, "ids", groupIds);
+
+                                for(User u : usersWithinGroup) {
+                                    u.getGroupIds().remove(group.getCode());
+                                    transaction.update(db.collection("users").document(String.valueOf(u.getId())),
+                                            "groupIds", u.getGroupIds());
+                                }
+
+
+                                transaction.delete(groupRef);
+
+                                return null;
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                MainSectionActivity mainSectionActivity = (MainSectionActivity) context;
+                                mainSectionActivity.updateGroupAdapter();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("TRANSACTION", e.getMessage());
+                            }
+                        });
+                    }
+                }
+        );
+
     }
 }
