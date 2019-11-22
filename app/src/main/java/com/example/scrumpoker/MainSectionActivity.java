@@ -19,6 +19,7 @@ import android.widget.ImageView;
 
 import com.example.scrumpoker.adapter.GroupAdapter;
 import com.example.scrumpoker.dialogs.CreateGroupDialogFragment;
+import com.example.scrumpoker.dialogs.JoinGroupDialogFragment;
 import com.example.scrumpoker.fragments.GroupListFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 
@@ -84,9 +85,10 @@ public class MainSectionActivity extends AppCompatActivity {
         if(preferences.contains("role") && preferences.getString("role", "USER").equals("ADMIN")) {
             DialogFragment newFragment = new CreateGroupDialogFragment();
             newFragment.show(getSupportFragmentManager(), "group");
-            if(view instanceof ImageView) {
-
-            }
+        }
+        else{
+            DialogFragment newFragment = new JoinGroupDialogFragment();
+            newFragment.show(getSupportFragmentManager(), "group");
         }
 
     }

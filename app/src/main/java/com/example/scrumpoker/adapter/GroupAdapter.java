@@ -2,6 +2,7 @@ package com.example.scrumpoker.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,24 +21,40 @@ import com.example.scrumpoker.fragments.GroupListFragment;
 import com.example.scrumpoker.fragments.QuestionListFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Group;
+import com.example.scrumpoker.model.Role;
 
 import java.util.List;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
     private Context mContext;
     private List<Group> mGroups;
+    private Role role;
 
     public  GroupAdapter(Context context, List<Group> groups){
         this.mContext = context;
         this.mGroups = groups;
+        SharedPreferences sharedPreferences = context.getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
+        if(sharedPreferences.getString("role", "USER").equals("ADMIN")) {
+            role = Role.ADMIN;
+        }
+        else{
+            role = Role.USER;
+        }
     }
 
     @NonNull
     @Override
     public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View mView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recyclerview_group_row, parent, false);
-        return new GroupViewHolder(mView);
+        View mView;
+        if(role == Role.ADMIN){
+            mView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.recyclerview_group_row, parent, false);
+        }
+        else{
+            mView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.recyclerview_group_row_user, parent, false);
+        }
+        return new GroupViewHolder(mView, role);
     }
 
     @Override
@@ -51,18 +68,21 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
                 fragmentJump(item);
             }
         });
-        holder.ivEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDialogForEditing(item, v);
-            }
-        });
-        holder.ivDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DatabaseTransactions.deleteGroup(item, mContext);
-            }
-        });
+        if(role == Role.ADMIN) {
+            holder.ivEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openDialogForEditing(item, v);
+                }
+            });
+            holder.ivDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseTransactions.deleteGroup(item, mContext);
+                }
+            });
+        }
+
     }
 
     @Override
@@ -94,11 +114,17 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
     TextView tv_group_name;
     ImageView ivEdit, ivDelete;
 
-    public GroupViewHolder(View v) {
+    public GroupViewHolder(View v, Role role) {
         super(v);
-        tv_group_name = v.findViewById(R.id.tv_group_name);
-        ivEdit = v.findViewById(R.id.iv_edit);
-        ivDelete = v.findViewById(R.id.iv_delete);
+        if(role == Role.ADMIN) {
+            tv_group_name = v.findViewById(R.id.tv_group_name);
+            ivEdit = v.findViewById(R.id.iv_edit);
+            ivDelete = v.findViewById(R.id.iv_delete);
+        }
+        else{
+            tv_group_name = v.findViewById(R.id.tv_group_name_2);
+        }
+
 
     }
 }

@@ -304,4 +304,43 @@ public class DatabaseTransactions {
         );
 
     }
+
+    public static void joinGroup(final String gId, final Context context) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
+        final DocumentReference userRef = db.collection("users")
+                .document(String.valueOf(sharedPreferences.getInt("id", -1)));
+        final DocumentReference groupRef = db.collection("groups").document(gId);
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                User user = transaction.get(userRef).toObject(User.class);
+                Group group;
+                if(transaction.get(groupRef).exists()) {
+                    user.addGroupId(gId);
+
+                }
+                group = transaction.get(groupRef).toObject(Group.class);
+                group.addUser(user.getId());
+                transaction.update(groupRef, "users", group.getUsers());
+                transaction.update(userRef, "groupIds", user.getGroupIds());
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(context, context.getText(R.string.successJoin), Toast.LENGTH_LONG).show();
+
+                MainSectionActivity mainSectionActivity = (MainSectionActivity) context;
+                mainSectionActivity.updateGroupAdapter();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, context.getText(R.string.failJoin), Toast.LENGTH_LONG).show();
+                Log.d("JOING", e.getMessage());
+            }
+        });
+    }
 }

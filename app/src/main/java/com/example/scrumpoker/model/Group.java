@@ -12,10 +12,11 @@ public class Group implements Parcelable {
     private String code;
     private String groupName;
     private ArrayList<Question> questions;
-    private ArrayList<User> users;
+    private ArrayList<Integer> users;
 
     public Group() {
         this.questions = new ArrayList<>();
+        this.users = new ArrayList<>();
     }
 
     protected Group(Parcel in){
@@ -66,15 +67,15 @@ public class Group implements Parcelable {
         this.questions.remove(question);
     }
 
-    public ArrayList<User> getUsers() {
+    public ArrayList<Integer> getUsers() {
         return users;
     }
 
-    public void setUsers(ArrayList<User> users) {
+    public void setUsers(ArrayList<Integer> users) {
         this.users = users;
     }
 
-    public void addUser(User user) {
+    public void addUser(int user) {
         this.users.add(user);
     }
 
