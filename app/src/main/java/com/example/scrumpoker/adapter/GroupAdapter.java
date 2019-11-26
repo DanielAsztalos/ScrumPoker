@@ -82,6 +82,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
                 }
             });
         }
+        // TODO : make group icon clickable
 
     }
 

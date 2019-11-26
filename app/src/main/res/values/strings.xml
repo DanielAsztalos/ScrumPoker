@@ -23,6 +23,7 @@
     <string name="login">Login</string>
     <string name="wrong">Wrong username or password!</string>
 
+    <string name="groups">Groups</string>
     <string name="create_group">Create Group</string>
     <string name="group_name">Group Name</string>
     <string name="logout">Log out</string>
@@ -31,4 +32,16 @@
     <string name="groupId">Group Code</string>
     <string name="successJoin">Successfully joined the group!</string>
     <string name="failJoin">Failed to join group! Please make sure that the code you introduced is correct!</string>
+
+    <string name="add_question">Add Question</string>
+    <string name="content">Question Content</string>
+    <string name="expires">Expires: </string>
+    <string name="pickDate">Pick Date</string>
+    <string name="pickTime">Pick Time</string>
+    <string name="cardTypes">Choose Card Types:</string>
+    <string-array name="spinner_cards">
+        <item>1,2,3,4,5,6,7,8,9</item>
+        <item>1,2,3,5,8,13,20,40,100</item>
+    </string-array>
+    <string name="question_saved">Question saved successfully!</string>
 </resources>

@@ -16,6 +16,7 @@ import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.GroupAdapter;
 import com.example.scrumpoker.fragments.LoginFragment;
 import com.example.scrumpoker.model.Group;
+import com.example.scrumpoker.model.Question;
 import com.example.scrumpoker.model.Role;
 import com.example.scrumpoker.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -342,5 +343,49 @@ public class DatabaseTransactions {
                 Log.d("JOING", e.getMessage());
             }
         });
+    }
+
+    public static void saveQuestion(final Question question, final Context context) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final DocumentReference questionIds = db.collection("counters").document("question_ids");
+        SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
+        final DocumentReference groupRef = db.collection("groups").document(sharedPreferences.getString("gId", ""));
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                List<String> ids = (List<String>) transaction.get(questionIds).get("ids");
+                Group group = transaction.get(groupRef).toObject(Group.class);
+                String key;
+                boolean keyOK = true;
+
+                do{
+                    key = DatabaseTransactions.generateKey();
+                    if(ids.contains(key)) {
+                        keyOK = false;
+                    }
+                }while(!keyOK);
+
+                ids.add(key);
+                question.setId(key);
+                group.addQuestion(question);
+
+                transaction.update(questionIds, "ids", ids);
+                transaction.update(groupRef, "questions", group.getQuestions());
+
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(context, context.getText(R.string.question_saved), Toast.LENGTH_LONG).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("Q_FAIL", e.getMessage());
+            }
+        });
+
     }
 }

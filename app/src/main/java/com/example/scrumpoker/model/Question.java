@@ -2,14 +2,17 @@ package com.example.scrumpoker.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class Question {
-    private int id;
+    private String id;
     private String content;
     private boolean isActive;
     private boolean isExpired;
-    private LocalDateTime expiration;
+    private long expiration;
     private ArrayList<Answer> answers;
+    private int type;
 
     public Question() {
         this.answers = new ArrayList<>();
@@ -31,19 +34,19 @@ public class Question {
         isExpired = expired;
     }
 
-    public LocalDateTime getExpiration() {
+    public long getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(LocalDateTime expiration) {
+    public void setExpiration(long expiration) {
         this.expiration = expiration;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -69,5 +72,13 @@ public class Question {
 
     public void removeAnswer(Answer answer) {
         this.answers.remove(answer);
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

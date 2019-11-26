@@ -7,6 +7,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,19 +17,30 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.example.scrumpoker.adapter.GroupAdapter;
+import com.example.scrumpoker.dialogs.AddQuestionDialogFragment;
 import com.example.scrumpoker.dialogs.CreateGroupDialogFragment;
 import com.example.scrumpoker.dialogs.JoinGroupDialogFragment;
 import com.example.scrumpoker.fragments.GroupListFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class MainSectionActivity extends AppCompatActivity {
 
     private RecyclerView groupRecycleView;
     private GroupAdapter groupAdapter;
     private RecyclerView.LayoutManager groupLayoutManager;
+    final Calendar myCalendar = Calendar.getInstance();
+    //TextView dateShow = ((TextView) findViewById(R.id.tv_date));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +56,7 @@ public class MainSectionActivity extends AppCompatActivity {
 
             firstFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction().add(R.id.main_section_fragment, firstFragment, "start").commit();
-
-//            groupRecycleView = (RecyclerView) findViewById(R.id.rv_group);
-//            groupLayoutManager = new LinearLayoutManager(this);
-//            groupRecycleView.setLayoutManager(groupLayoutManager);
-//
-//            DatabaseTransactions.getGroups(getApplicationContext(), groupRecycleView);
+            ((MainSectionActivity) this).getSupportActionBar().setTitle(R.string.groups);
         }
     }
 
@@ -93,11 +101,66 @@ public class MainSectionActivity extends AppCompatActivity {
 
     }
 
+    public void openQuestionDialog(View view) {
+        DialogFragment newFragment = new AddQuestionDialogFragment();
+        newFragment.show(getSupportFragmentManager(), "question");
+    }
+
+    public void openDatePicker(View view) {
+        new DatePickerDialog(MainSectionActivity.this, date, myCalendar
+                .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    public void openTimePicker(View view) {
+        new TimePickerDialog(MainSectionActivity.this, time, myCalendar.get(Calendar.HOUR_OF_DAY),
+                myCalendar.get(Calendar.MINUTE), true).show();
+    }
+
+    DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear,
+                              int dayOfMonth) {
+            myCalendar.set(Calendar.YEAR, year);
+            myCalendar.set(Calendar.MONTH, monthOfYear);
+            myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            updateLabel();
+        }
+
+    };
+
+    TimePickerDialog.OnTimeSetListener time = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            myCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            myCalendar.set(Calendar.MINUTE, minute);
+            updateTimeLabel();
+        }
+    };
+
+    public void updateLabel(){
+        String myFormat = "yyyy/MM/dd";
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        SharedPreferences sharedPreferences = getSharedPreferences("DATE", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("date", sdf.format(myCalendar.getTime()));
+        editor.commit();
+    }
+
+    public void updateTimeLabel() {
+        SharedPreferences sharedPreferences = getSharedPreferences("DATE", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("time", myCalendar.get(Calendar.HOUR_OF_DAY) + ":" + myCalendar.get(Calendar.MINUTE));
+        editor.commit();
+    }
+
     public void switchFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.main_section_fragment, fragment, "id");
         ft.addToBackStack(null);
         ft.commit();
+        ((MainSectionActivity) this).getSupportActionBar().setTitle("Questions");
     }
 
     public void updateGroupAdapter(){
