@@ -40,7 +40,6 @@ public class MainSectionActivity extends AppCompatActivity {
     private GroupAdapter groupAdapter;
     private RecyclerView.LayoutManager groupLayoutManager;
     final Calendar myCalendar = Calendar.getInstance();
-    //TextView dateShow = ((TextView) findViewById(R.id.tv_date));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +159,7 @@ public class MainSectionActivity extends AppCompatActivity {
         ft.replace(R.id.main_section_fragment, fragment, "id");
         ft.addToBackStack(null);
         ft.commit();
-        ((MainSectionActivity) this).getSupportActionBar().setTitle("Questions");
+//        ((MainSectionActivity) this).getSupportActionBar().setTitle("Questions");
     }
 
     public void updateGroupAdapter(){

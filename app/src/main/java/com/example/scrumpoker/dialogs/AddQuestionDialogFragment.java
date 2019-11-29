@@ -90,15 +90,18 @@ public class AddQuestionDialogFragment extends DialogFragment {
         sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                Log.d("ENTER", "SHP");
                 if (key.equals("date")) {
                     //SharedPreferences.Editor editor = sharedPreferences.edit();
                     ((TextView) mainView.findViewById(R.id.tv_date)).setText(sharedPreferences.getString("date", ""));
                     //editor.remove("date");
+                    Log.d("BYE", "EMERY");
                 } else {
                     if (key.equals("time")) {
                         //SharedPreferences.Editor editor = sharedPreferences.edit();
                         ((TextView) mainView.findViewById(R.id.tv_time)).setText(sharedPreferences.getString("time", ""));
                         //editor.remove("time");
+                        Log.d("LOL", "XD");
                     }
                 }
             }

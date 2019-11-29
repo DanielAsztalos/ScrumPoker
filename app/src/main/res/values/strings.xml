@@ -44,4 +44,12 @@
         <item>1,2,3,5,8,13,20,40,100</item>
     </string-array>
     <string name="question_saved">Question saved successfully!</string>
+
+    <string name="group_code">Group Code</string>
+    <string name="active_msg">There is already an active question!</string>
+    <string name="active_exists">If you activate this question the other one will be automatically unactivated. Proceed?</string>
+    <string name="q_expired">It looks like this question has already expired! You cannot activate an expired question!</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

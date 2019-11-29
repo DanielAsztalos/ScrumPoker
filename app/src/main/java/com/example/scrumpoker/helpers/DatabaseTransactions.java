@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.GroupAdapter;
+import com.example.scrumpoker.adapter.QuestionAdapter;
 import com.example.scrumpoker.fragments.LoginFragment;
 import com.example.scrumpoker.model.Group;
 import com.example.scrumpoker.model.Question;
@@ -26,8 +27,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
@@ -387,5 +390,71 @@ public class DatabaseTransactions {
             }
         });
 
+    }
+
+    public static void setQuestionActive(final int position, final boolean status, Context context) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
+        final DocumentReference groupRef = db.collection("groups").document(sharedPreferences.getString("gId", ""));
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                Group group = transaction.get(groupRef).toObject(Group.class);
+                if(status) {
+                    for(int i = 0; i < group.getQuestions().size(); i++){
+                        if(group.getQuestions().get(i).isActive()) {
+                            group.getQuestions().get(i).setActive(false);
+                        }
+                    }
+                }
+
+                group.getQuestions().get(position).setActive(status);
+
+                transaction.update(groupRef, "questions", group.getQuestions());
+
+                return null;
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("SETACTIVE", e.getMessage());
+            }
+        });
+    }
+
+    public static ListenerRegistration addGroupListener(final Context context, final RecyclerView recyclerView) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
+        DocumentReference groupRef = db.collection("groups").document(sharedPreferences.getString("gId", ""));
+        ListenerRegistration registration = groupRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if(e == null && documentSnapshot != null && documentSnapshot.exists()) {
+                    Group group = documentSnapshot.toObject(Group.class);
+                    QuestionAdapter questionAdapter = new QuestionAdapter(context, group);
+                    recyclerView.setAdapter(questionAdapter);
+                }
+            }
+        });
+        return registration;
+
+    }
+
+    public static void setExpired(final Context context, final int position, final boolean status) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
+        final DocumentReference groupRef = db.collection("groups").document(sharedPreferences.getString("gId", ""));
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                Group group = transaction.get(groupRef).toObject(Group.class);
+                group.getQuestions().get(position).setExpired(status);
+
+                transaction.update(groupRef, "questions", group.getQuestions());
+                return null;
+            }
+        });
     }
 }
