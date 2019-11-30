@@ -19,6 +19,7 @@ import com.example.scrumpoker.adapter.GroupAdapter;
 import com.example.scrumpoker.adapter.QuestionAdapter;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Group;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
@@ -53,6 +54,10 @@ public class QuestionListFragment extends Fragment {
         questionRecyclerView.setLayoutManager(questionLayoutManager);
         questionAdapter = new QuestionAdapter(container.getContext(), group);
         questionRecyclerView.setAdapter(questionAdapter);
+
+        if(sharedPreferences.getString("role", "USER").equals("USER")){
+            ((FloatingActionButton) rootview.findViewById(R.id.fa_question)).hide();
+        }
 
         registration = DatabaseTransactions.addGroupListener(getContext(), questionRecyclerView);
 

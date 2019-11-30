@@ -16,6 +16,7 @@ import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.GroupAdapter;
 import com.example.scrumpoker.adapter.QuestionAdapter;
 import com.example.scrumpoker.fragments.LoginFragment;
+import com.example.scrumpoker.model.Answer;
 import com.example.scrumpoker.model.Group;
 import com.example.scrumpoker.model.Question;
 import com.example.scrumpoker.model.Role;
@@ -451,6 +452,27 @@ public class DatabaseTransactions {
             public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 Group group = transaction.get(groupRef).toObject(Group.class);
                 group.getQuestions().get(position).setExpired(status);
+
+                transaction.update(groupRef, "questions", group.getQuestions());
+                return null;
+            }
+        });
+    }
+
+    public static void addAnswer(final Context context, final Answer answer, final int qIndex) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
+        final DocumentReference groupRef = db.collection("groups").document(sharedPreferences.getString("gId", ""));
+        db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                Group group = transaction.get(groupRef).toObject(Group.class);
+                group.getQuestions().get(qIndex).addAnswer(answer);
+                if(group.getQuestions().get(qIndex).getAnswers().size() == group.getUsers().size()) {
+                    group.getQuestions().get(qIndex).setActive(false);
+                    group.getQuestions().get(qIndex).setExpired(true);
+                }
 
                 transaction.update(groupRef, "questions", group.getQuestions());
                 return null;
