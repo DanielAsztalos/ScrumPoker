@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.fragments.AnswerFragment;
 import com.example.scrumpoker.fragments.QuestionListFragment;
+import com.example.scrumpoker.fragments.ResultFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Group;
 import com.example.scrumpoker.model.Question;
@@ -38,6 +40,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionViewHolder> {
     private Context mContext;
     private Group mGroup;
     private Role role;
+    private ArrayList<CountDownTimer> timers = new ArrayList<>();
 
     public QuestionAdapter(Context mContext, Group mGroups) {
         this.mContext = mContext;
@@ -84,7 +87,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionViewHolder> {
         }
 
         String status;
-        if(item.isActive()) {
+        if(item.isActive() && !item.isExpired()) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(item.getExpiration());
 
@@ -96,6 +99,21 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionViewHolder> {
                 holder.mActivate.setImageResource(R.drawable.ic_clear_black_24dp);
             }
 
+//            CountDownTimer timer = new CountDownTimer(item.getExpiration() - System.currentTimeMillis(),
+//                    item.getExpiration() - System.currentTimeMillis()) {
+//                @Override
+//                public void onTick(long millisUntilFinished) {
+//
+//                }
+//
+//                @Override
+//                public void onFinish() {
+//                    DatabaseTransactions.setExpired(mContext, position, true);
+//                }
+//            };
+//            timer.start();
+//            timers.add(timer);
+
         }
         else{
             if(!item.isExpired()){
@@ -103,6 +121,21 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionViewHolder> {
             }
             else{
                 status = "Expired";
+                holder.mStats.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ResultFragment fragment = new ResultFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("item_selected_key", mGroup);
+                        bundle.putInt("selected_question", position);
+                        fragment.setArguments(bundle);
+
+                        if(mContext instanceof MainSectionActivity) {
+                            MainSectionActivity mainSectionActivity = (MainSectionActivity) mContext;
+                            mainSectionActivity.switchFragment(fragment);
+                        }
+                    }
+                });
             }
         }
         holder.mStatus.setText(status);
@@ -180,7 +213,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionViewHolder> {
 
     private static boolean hasActiveQuestion(Group group) {
         for(Question q: group.getQuestions()){
-            if(q.isActive()) {
+            if(q.isActive() && !q.isExpired()) {
                 return true;
             }
         }
@@ -214,7 +247,7 @@ class QuestionViewHolder extends RecyclerView.ViewHolder {
         else{
             mContent = v.findViewById(R.id.tv_question_cont2);
             mStatus = v.findViewById(R.id.tv_question_status2);
-            mStats = v.findViewById(R.id.iv_stats);
+            mStats = v.findViewById(R.id.iv_stats2);
         }
     }
 }

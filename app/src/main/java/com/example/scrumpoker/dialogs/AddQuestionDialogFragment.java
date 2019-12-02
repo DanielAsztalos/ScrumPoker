@@ -24,10 +24,12 @@ import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Answer;
 import com.example.scrumpoker.model.Question;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class AddQuestionDialogFragment extends DialogFragment {
     View mainView;
@@ -44,8 +46,17 @@ public class AddQuestionDialogFragment extends DialogFragment {
         String[] ts = time.split(":");
         Log.d("SPLIT", time + ts.length);
         Calendar dateTime = Calendar.getInstance();
-        dateTime.set(Integer.parseInt(ds[0]), Integer.parseInt(ds[1]), Integer.parseInt(ds[2]),
-                Integer.parseInt(ts[0]), Integer.parseInt(ts[1]));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
+        try{
+            dateTime.setTime(sdf.parse(date + " " + time));
+        }catch (Exception e){
+            Log.d("EXCEPTION", e.getMessage());
+        }
+
+//        Date date1 = new Date(Integer.parseInt(ds[0]), Integer.parseInt(ds[1]), Integer.parseInt(ds[2]), Integer.parseInt(ts[0]), Integer.parseInt(ts[1]));
+//        dateTime.set(Integer.parseInt(ds[0]), Integer.parseInt(ds[1]) - 1, Integer.parseInt(ds[2]) - 1,
+//                Integer.parseInt(ts[0]), Integer.parseInt(ts[1]));
+
         int type = ((Spinner) mainView.findViewById(R.id.sp_cards)).getSelectedItemPosition();
 
         question.setContent(content);

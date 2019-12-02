@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -55,7 +56,8 @@ public class QuestionListFragment extends Fragment {
         questionAdapter = new QuestionAdapter(container.getContext(), group);
         questionRecyclerView.setAdapter(questionAdapter);
 
-        if(sharedPreferences.getString("role", "USER").equals("USER")){
+        SharedPreferences userPrefs = getContext().getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
+        if(userPrefs.getString("role", "USER").equals("USER")){
             ((FloatingActionButton) rootview.findViewById(R.id.fa_question)).hide();
         }
 

@@ -15,6 +15,7 @@ import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.GroupAdapter;
 import com.example.scrumpoker.adapter.QuestionAdapter;
+import com.example.scrumpoker.adapter.ResultAdapter;
 import com.example.scrumpoker.fragments.LoginFragment;
 import com.example.scrumpoker.model.Answer;
 import com.example.scrumpoker.model.Group;
@@ -36,6 +37,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -476,6 +478,36 @@ public class DatabaseTransactions {
 
                 transaction.update(groupRef, "questions", group.getQuestions());
                 return null;
+            }
+        });
+    }
+
+    public static void getResultGroupAndUsers(final Context context, final int qIndex, final RecyclerView recyclerView){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
+        DocumentReference groupRef = db.collection("groups").document(sharedPreferences.getString("gId", ""));
+        groupRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                final Group group = documentSnapshot.toObject(Group.class);
+                db.collection("users").whereIn("id", group.getUsers()).get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                ArrayList<User> members = new ArrayList<>();
+                                for (DocumentSnapshot documentReference: queryDocumentSnapshots){
+                                    members.add(documentReference.toObject(User.class));
+                                }
+
+                                ResultAdapter adapter = new ResultAdapter(context, group, qIndex, members);
+                                recyclerView.setAdapter(adapter);
+                            }
+                        });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
             }
         });
     }

@@ -10,14 +10,18 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.AnswerAdapter;
 import com.example.scrumpoker.adapter.QuestionAdapter;
+import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Group;
 
 import java.util.ArrayList;
@@ -29,6 +33,7 @@ public class AnswerFragment extends Fragment {
     private RecyclerView answerRecyclerView;
     private RecyclerView.LayoutManager answerLayoutManager;
     private RecyclerView.Adapter answerAdapter;
+    private CountDownTimer countDownTimer;
 
 
     public AnswerFragment() {
@@ -39,13 +44,13 @@ public class AnswerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Group group = this.getArguments().getParcelable("item_selected_key");
+        final Group group = this.getArguments().getParcelable("item_selected_key");
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("GROUP", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("gId", group.getCode());
         editor.commit();
 
-        int qNum = this.getArguments().getInt("selected_question");
+        final int qNum = this.getArguments().getInt("selected_question");
         int[] numbers;
         if(group.getQuestions().get(qNum).getType() == 0) {
             numbers = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -63,10 +68,54 @@ public class AnswerFragment extends Fragment {
         answerAdapter = new AnswerAdapter(container.getContext(), group, qNum, numbers, userPrefs.getInt("id", 0));
         answerRecyclerView.setAdapter(answerAdapter);
 
+        long timeUntil = System.currentTimeMillis() - group.getQuestions().get(qNum).getExpiration();
+        final View rootviewCopy = rootview;
+
+        countDownTimer = new CountDownTimer(-timeUntil, 1000){
+            @Override
+            public void onTick(long millisUntilFinished) {
+                Log.d("SECS", String.valueOf(millisUntilFinished / 1000));
+                long days = (millisUntilFinished / (1000 * 60 * 60 * 24));
+                long hours = (millisUntilFinished - days * (24 * 60 * 60 * 1000)) / (1000 * 60 * 60);
+                long minutes = (millisUntilFinished - (days * (24 * 60 * 60 * 1000) + hours * (60 * 60 * 1000))) / (60 * 1000);
+                long seconds = (millisUntilFinished - (days * (24 * 60 * 60 * 1000) + hours * (60 * 60 * 1000) + minutes * (60 * 1000))) / (1000);
+
+                String hourS = (String) (hours > 9 ? String.valueOf(hours) : "0" + hours);
+                String minuteS = (String) (minutes > 9 ? String.valueOf(minutes) : "0" + minutes);
+                String secondS = (String) (seconds > 9 ? String.valueOf(seconds) : "0" + seconds);
+
+                ((TextView) rootviewCopy.findViewById(R.id.tv_clock)).setText(
+                        days + " days, " + hourS + ":" + minuteS + ":" + secondS
+                );
+            }
+
+            @Override
+            public void onFinish() {
+                QuestionListFragment fragment = new QuestionListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("item_selected_key", group);
+                fragment.setArguments(bundle);
+
+                DatabaseTransactions.setExpired(getContext(), qNum, true);
+
+                if(getActivity() instanceof MainSectionActivity){
+                    ((MainSectionActivity) getActivity()).switchFragment(fragment);
+                }
+
+
+            }
+        };
+        countDownTimer.start();
+
         ((TextView) rootview.findViewById(R.id.tv_q_content)).setText(group.getQuestions().get(qNum).getContent());
 
         // Inflate the layout for this fragment
         return rootview;
     }
 
+    @Override
+    public void onStop() {
+        countDownTimer.cancel();
+        super.onStop();
+    }
 }
