@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.example.scrumpoker.R;
 
 /**
- * A simple {@link Fragment} subclass.
+ * This fragment is responsible for displaying the start page
  */
 public class StartFragment extends Fragment {
 

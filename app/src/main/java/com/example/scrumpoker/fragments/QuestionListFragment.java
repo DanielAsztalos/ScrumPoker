@@ -26,7 +26,10 @@ import com.google.firebase.firestore.ListenerRegistration;
 import java.util.ArrayList;
 
 /**
- * A simple {@link Fragment} subclass.
+    This fragment is responsible for displaying the group code and the list of the questions
+    that belong to that group
+    This fragment expects the following argument to be sent to:
+        1) item_selected_key - Group - the selected group
  */
 public class QuestionListFragment extends Fragment {
     private String code;
@@ -43,31 +46,39 @@ public class QuestionListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // get group from fragment arguments
         Group group = this.getArguments().getParcelable("item_selected_key");
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("GROUP", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("gId", group.getCode());
         editor.commit();
 
+        // put current fragment name in shared prefs
         SharedPreferences fragmentPrefs = getContext().getSharedPreferences("FRAGMENT", Context.MODE_PRIVATE);
         fragmentPrefs.edit().putString("current", "question").commit();
 
+        // Inflate the layout for this fragment
         View rootview = inflater.inflate(R.layout.fragment_question_list, container, false);
+        // initialize the RecyclerView's LayoutManager and Adapter
         questionRecyclerView = (RecyclerView) rootview.findViewById(R.id.rv_questions);
         questionLayoutManager = new LinearLayoutManager(container.getContext());
         questionRecyclerView.setLayoutManager(questionLayoutManager);
         questionAdapter = new QuestionAdapter(container.getContext(), group);
         questionRecyclerView.setAdapter(questionAdapter);
 
+        // get user preferences
         SharedPreferences userPrefs = getContext().getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
         if(userPrefs.getString("role", "USER").equals("USER")){
+            // if user doesn't have ADMIN privileges hide "+" button
             ((FloatingActionButton) rootview.findViewById(R.id.fa_question)).hide();
         }
 
+        // register a listener for every change made to the group
         registration = DatabaseTransactions.addGroupListener(getContext(), questionRecyclerView);
 
+        // get group code
         this.code = group.getCode();
-        // Inflate the layout for this fragment
+
         return rootview;
     }
 

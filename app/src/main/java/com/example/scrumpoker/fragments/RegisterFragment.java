@@ -1,7 +1,4 @@
 package com.example.scrumpoker.fragments;
-
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.scrumpoker.R;
+
+/**
+ * This fragment is responsible for displaying the register form
+ */
 
 public class RegisterFragment extends Fragment {
     @Override

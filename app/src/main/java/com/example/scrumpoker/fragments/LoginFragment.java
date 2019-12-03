@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.example.scrumpoker.R;
 
 /**
- * A simple {@link Fragment} subclass.
+    This fragment displays the Login form
  */
 public class LoginFragment extends Fragment {
 

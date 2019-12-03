@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.CountDownTimer;
@@ -20,14 +19,14 @@ import android.widget.TextView;
 import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.AnswerAdapter;
-import com.example.scrumpoker.adapter.QuestionAdapter;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Group;
 
-import java.util.ArrayList;
-
 /**
- * A simple {@link Fragment} subclass.
+    This fragment is responsible for displaying the possible answers to the selected question
+    This fragment expects the following arguments to be sent to:
+        1) item_selected_key - Group - the selected group
+        2) selected_question - int - the index of the selected question
  */
 public class AnswerFragment extends Fragment {
     private RecyclerView answerRecyclerView;
@@ -44,13 +43,16 @@ public class AnswerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // get current group from arguments of the fragment
         final Group group = this.getArguments().getParcelable("item_selected_key");
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("GROUP", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("gId", group.getCode());
         editor.commit();
 
+        // get the selected questions index from fragment arguments
         final int qNum = this.getArguments().getInt("selected_question");
+        // get the type of the possible answers and add them accordingly
         int[] numbers;
         if(group.getQuestions().get(qNum).getType() == 0) {
             numbers = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -59,10 +61,12 @@ public class AnswerFragment extends Fragment {
             numbers = new int[]{1, 2, 3, 5, 8, 13, 20, 40, 70, 100};
         }
 
+        // get user and fragment preferences
         SharedPreferences userPrefs = getContext().getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
         SharedPreferences fragmentPrefs = getContext().getSharedPreferences("FRAGMENT" , Context.MODE_PRIVATE);
         fragmentPrefs.edit().putString("current", "answer").commit();
 
+        // initialize the RecyclerView's LayoutManager and Adapter
         View rootview = inflater.inflate(R.layout.fragment_answer, container, false);
         answerRecyclerView = (RecyclerView) rootview.findViewById(R.id.rv_answer);
         answerLayoutManager = new GridLayoutManager(container.getContext(), 2);
@@ -70,9 +74,11 @@ public class AnswerFragment extends Fragment {
         answerAdapter = new AnswerAdapter(container.getContext(), group, qNum, numbers, userPrefs.getInt("id", 0));
         answerRecyclerView.setAdapter(answerAdapter);
 
+        // get time until question expires
         long timeUntil = System.currentTimeMillis() - group.getQuestions().get(qNum).getExpiration();
         final View rootviewCopy = rootview;
 
+        // display countdown timer
         countDownTimer = new CountDownTimer(-timeUntil, 1000){
             @Override
             public void onTick(long millisUntilFinished) {
@@ -93,6 +99,7 @@ public class AnswerFragment extends Fragment {
 
             @Override
             public void onFinish() {
+                // when time's over go back to QuestionFragment
                 QuestionListFragment fragment = new QuestionListFragment();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("item_selected_key", group);
@@ -109,9 +116,9 @@ public class AnswerFragment extends Fragment {
         };
         countDownTimer.start();
 
+        // display question content
         ((TextView) rootview.findViewById(R.id.tv_q_content)).setText(group.getQuestions().get(qNum).getContent());
 
-        // Inflate the layout for this fragment
         return rootview;
     }
 
