@@ -13,7 +13,13 @@ import androidx.fragment.app.DialogFragment;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 
+/*
+    This dialog fragment contains the join group form
+ */
+
 public class JoinGroupDialogFragment extends DialogFragment {
+
+    // validate code and begin transaction
     private void joinGroup(Dialog alert){
         String code = ((EditText) getDialog().findViewById(R.id.et_group_code)).getText().toString();
         if(code.length() == 0) {

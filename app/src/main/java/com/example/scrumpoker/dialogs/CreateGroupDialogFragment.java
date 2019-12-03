@@ -17,7 +17,13 @@ import com.example.scrumpoker.model.Group;
 
 import java.util.ArrayList;
 
+/*
+    This dialog fragment contains the group creation form
+ */
+
 public class CreateGroupDialogFragment extends DialogFragment {
+
+    // initialize new Group object and begin transaction
     private void saveGroup(Dialog alert){
         Group group = new Group();
         group.setUsers(new ArrayList<Integer>());
@@ -31,6 +37,7 @@ public class CreateGroupDialogFragment extends DialogFragment {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
 
+        // add positive and negative buttons
         builder.setView(inflater.inflate(R.layout.dialog_create_group, null))
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
