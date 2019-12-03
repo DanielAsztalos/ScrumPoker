@@ -49,6 +49,9 @@ public class QuestionListFragment extends Fragment {
         editor.putString("gId", group.getCode());
         editor.commit();
 
+        SharedPreferences fragmentPrefs = getContext().getSharedPreferences("FRAGMENT", Context.MODE_PRIVATE);
+        fragmentPrefs.edit().putString("current", "question").commit();
+
         View rootview = inflater.inflate(R.layout.fragment_question_list, container, false);
         questionRecyclerView = (RecyclerView) rootview.findViewById(R.id.rv_questions);
         questionLayoutManager = new LinearLayoutManager(container.getContext());

@@ -1,6 +1,8 @@
 package com.example.scrumpoker.fragments;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -52,6 +54,8 @@ public class ResultFragment extends Fragment {
 
         DatabaseTransactions.getResultGroupAndUsers(rootview.getContext(), questionIndex, resultRecyclerView);
 
+        SharedPreferences fragmentPrefs = getContext().getSharedPreferences("FRAGMENT", Context.MODE_PRIVATE);
+        fragmentPrefs.edit().putString("current", "result").commit();
 
         return rootview;
     }

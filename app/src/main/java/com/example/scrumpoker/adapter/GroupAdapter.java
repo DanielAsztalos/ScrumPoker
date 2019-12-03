@@ -1,7 +1,6 @@
 package com.example.scrumpoker.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,19 +10,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
-import com.example.scrumpoker.dialogs.CreateGroupDialogFragment;
-import com.example.scrumpoker.fragments.GroupListFragment;
 import com.example.scrumpoker.fragments.QuestionListFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Group;
 import com.example.scrumpoker.model.Role;
 
 import java.util.List;
+
+/*
+    This adapter initializes the RecyclerView inside the GroupListFragment
+    Constructor params:
+        1) mContext: Context - the context of the Activity
+        2) mGroups: ArrayList<Group> - the list of the groups that the user is part of
+ */
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
     private Context mContext;
@@ -46,11 +49,14 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
     @Override
     public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View mView;
+        // if an admin is logged in
         if(role == Role.ADMIN){
+            // inflate the admin view
             mView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_group_row, parent, false);
         }
         else{
+            // inflate the user view
             mView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_group_row_user, parent, false);
         }
@@ -62,27 +68,26 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
 
         final Group item = mGroups.get(position);
         holder.tv_group_name.setText(mGroups.get(position).getGroupName());
+        // if a user clicks on the name of the group
         holder.tv_group_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // navigate to the QuestionListFragment
                 fragmentJump(item);
             }
         });
+
+        // if the user has ADMIN role display a delete icon
         if(role == Role.ADMIN) {
-            holder.ivEdit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openDialogForEditing(item, v);
-                }
-            });
+            // if the delete icon was clicked
             holder.ivDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // delete the group
                     DatabaseTransactions.deleteGroup(item, mContext);
                 }
             });
         }
-        // TODO : make group icon clickable
 
     }
 
@@ -91,9 +96,13 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
         return mGroups.size();
     }
 
+    // This function manages the navigation to the QuestionListFragment
+    // params:
+    //      1) mItemSelected: Group - the selected group
     private void fragmentJump(Group mItemSelected) {
         QuestionListFragment fragment = new QuestionListFragment();
         Bundle bundle = new Bundle();
+        // Put the selected group as an argument to the new fragment
         bundle.putParcelable("item_selected_key", mItemSelected);
         fragment.setArguments(bundle);
 
@@ -102,24 +111,16 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupViewHolder> {
             mainSectionActivity.switchFragment(fragment);
         }
     }
-
-    private void  openDialogForEditing(Group selectedGroup, View v) {
-        if(mContext instanceof MainSectionActivity) {
-            MainSectionActivity mainSectionActivity = (MainSectionActivity) mContext;
-            mainSectionActivity.openDialog(v);
-        }
-    }
 }
 
 class GroupViewHolder extends RecyclerView.ViewHolder {
     TextView tv_group_name;
-    ImageView ivEdit, ivDelete;
+    ImageView ivDelete;
 
     public GroupViewHolder(View v, Role role) {
         super(v);
         if(role == Role.ADMIN) {
             tv_group_name = v.findViewById(R.id.tv_group_name);
-            ivEdit = v.findViewById(R.id.iv_edit);
             ivDelete = v.findViewById(R.id.iv_delete);
         }
         else{

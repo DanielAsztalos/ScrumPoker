@@ -1,6 +1,8 @@
 package com.example.scrumpoker.fragments;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -45,6 +47,12 @@ public class GroupListFragment extends Fragment {
 //        groupRecycleView.setAdapter(groupAdapter);
 
         DatabaseTransactions.getGroups(container.getContext(), groupRecycleView, groupAdapter);
+
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("FRAGMENT", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("current", "group");
+        editor.commit();
+
         return rootview;
     }
 

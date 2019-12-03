@@ -17,6 +17,15 @@ import com.example.scrumpoker.model.User;
 
 import java.util.ArrayList;
 
+/*
+    This adapter initializes the RecyclerView inside ResultFragment
+    Constructor params:
+        1) mContext: Context - the context of the activity
+        2) mGroup: Group - the currently selected group
+        3) mQuestionId: int - the index of the currently selected question in the list of questions
+        4) mMembers: ArrayList<User> - the list of users that are members of the current group
+ */
+
 public class ResultAdapter extends RecyclerView.Adapter<ResultViewHolder> {
     private Context mContext;
     private Group mGroup;
@@ -42,6 +51,7 @@ public class ResultAdapter extends RecyclerView.Adapter<ResultViewHolder> {
         Question q = mGroup.getQuestions().get(mQuestionId);
         Answer item = q.getAnswers().get(position);
         holder.tv_result_number.setText(item.getContent());
+        // search for the user that answered to the selected question
         for(User user: mMembers) {
             if(user.getId() == item.getAnswerBy()) {
                 holder.tv_result_name.setText(user.getUsername());

@@ -60,6 +60,8 @@ public class AnswerFragment extends Fragment {
         }
 
         SharedPreferences userPrefs = getContext().getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
+        SharedPreferences fragmentPrefs = getContext().getSharedPreferences("FRAGMENT" , Context.MODE_PRIVATE);
+        fragmentPrefs.edit().putString("current", "answer").commit();
 
         View rootview = inflater.inflate(R.layout.fragment_answer, container, false);
         answerRecyclerView = (RecyclerView) rootview.findViewById(R.id.rv_answer);

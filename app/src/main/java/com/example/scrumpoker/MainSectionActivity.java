@@ -28,6 +28,7 @@ import com.example.scrumpoker.dialogs.AddQuestionDialogFragment;
 import com.example.scrumpoker.dialogs.CreateGroupDialogFragment;
 import com.example.scrumpoker.dialogs.JoinGroupDialogFragment;
 import com.example.scrumpoker.fragments.GroupListFragment;
+import com.example.scrumpoker.fragments.QuestionListFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 
 import java.text.SimpleDateFormat;
@@ -159,12 +160,23 @@ public class MainSectionActivity extends AppCompatActivity {
         ft.replace(R.id.main_section_fragment, fragment, "id");
         ft.addToBackStack(null);
         ft.commit();
-//        ((MainSectionActivity) this).getSupportActionBar().setTitle("Questions");
     }
 
     public void updateGroupAdapter(){
         DatabaseTransactions.getGroups(this, (RecyclerView) findViewById(R.id.rv_group), groupAdapter);
     }
 
-
+    @Override
+    public void onBackPressed() {
+        SharedPreferences sharedPreferences = getSharedPreferences("FRAGMENT", Context.MODE_PRIVATE);
+        String fragmentName = sharedPreferences.getString("current", "");
+        switch (fragmentName) {
+            case "question":
+                GroupListFragment fragment = new GroupListFragment();
+                switchFragment(fragment);
+                break;
+            default:
+                super.onBackPressed();
+        }
+    }
 }

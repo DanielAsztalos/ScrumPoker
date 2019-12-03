@@ -15,9 +15,12 @@ import com.example.scrumpoker.R;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Group;
 
+import java.util.ArrayList;
+
 public class CreateGroupDialogFragment extends DialogFragment {
     private void saveGroup(Dialog alert){
         Group group = new Group();
+        group.setUsers(new ArrayList<Integer>());
         group.setGroupName(((EditText) getDialog().findViewById(R.id.et_group_name)).getText().toString());
         SharedPreferences preferences = getActivity().getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
         int userId = preferences.getInt("id", -1);

@@ -12,13 +12,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
-import com.example.scrumpoker.fragments.AnswerFragment;
 import com.example.scrumpoker.fragments.QuestionListFragment;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
 import com.example.scrumpoker.model.Answer;
 import com.example.scrumpoker.model.Group;
 
-import java.util.ArrayList;
+/*
+    This adapter initializes the content of the RecyclerView inside the AnswerFragment
+    Constructor params:
+        1) mContext: Context - the context of the Activity
+        2) mGroup: Group - the currently used group
+        3) questionNum: int - the index of the selected question inside the list of questions
+        4) numbers: int[] - the possible answers to the given question
+        5) userId: int - the id of the logged user
+ */
 
 public class AnswerAdapter extends RecyclerView.Adapter<AnswerViewHolder> {
     private Context mContext;
@@ -46,15 +53,19 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerViewHolder> {
     public void onBindViewHolder(@NonNull AnswerViewHolder holder, final int position) {
         holder.tv_number.setText(String.valueOf(numbers[position]));
         holder.tv_number.setClickable(true);
+        // if the user clicks on  a number
         holder.tv_number.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // create new answer
                 Answer answer = new Answer();
                 answer.setAnswerBy(userId);
                 answer.setContent(String.valueOf(numbers[position]));
 
+                // save the answer to the database
                 DatabaseTransactions.addAnswer(mContext, answer, questionNum);
 
+                // navigate back to the QuestionFragment
                 QuestionListFragment fragment = new QuestionListFragment();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("item_selected_key", mGroup);
@@ -80,7 +91,6 @@ class AnswerViewHolder extends RecyclerView.ViewHolder {
 
     public AnswerViewHolder(View v) {
         super(v);
-
         tv_number = (TextView) v.findViewById(R.id.tv_number);
     }
 
