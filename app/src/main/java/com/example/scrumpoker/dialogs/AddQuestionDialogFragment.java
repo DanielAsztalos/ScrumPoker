@@ -103,9 +103,7 @@ public class AddQuestionDialogFragment extends DialogFragment {
                 AddQuestionDialogFragment.this.getDialog().cancel();
             }
         });
-
-        // attach listener to shared preferences so that time and date can be displayed
-        sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (key.equals("date")) {
@@ -116,7 +114,10 @@ public class AddQuestionDialogFragment extends DialogFragment {
                     }
                 }
             }
-        });
+        };
+
+        // attach listener to shared preferences so that time and date can be displayed
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
         return builder.create();
     }
 }
