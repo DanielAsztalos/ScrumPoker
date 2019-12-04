@@ -124,6 +124,12 @@ public class MainActivity extends FragmentActivity {
         DatabaseTransactions.checkBeforeSave(user, getApplicationContext(), getSupportFragmentManager().beginTransaction());
     }
 
+    /**
+     * This function executes whenever a user clicked on the Login button
+     * It validates the login credentials and if everything is OK then it
+     * checks if they are correct
+     * @param view
+     */
     public void loginClicked(View view) {
         String username = ((EditText) findViewById(R.id.et_login_name)).getText().toString();
         if(username == null || username.length() == 0) {
@@ -140,6 +146,11 @@ public class MainActivity extends FragmentActivity {
         DatabaseTransactions.userLogin(username, pass, getApplicationContext());
     }
 
+    /**
+     * This function executes whenever a user clicks the register button on the home screen
+     * It loads the register fragment
+     * @param view
+     */
     public void registerStartClcked(View view) {
         if(findViewById(R.id.fragment_container) != null) {
 
@@ -150,6 +161,11 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
+    /**
+     * This function executes whenever a user clicks the login button on the home screen
+     * It loads the login fragment
+     * @param view
+     */
     public void loginStartClcked(View view) {
         if(findViewById(R.id.fragment_container) != null) {
 
@@ -160,6 +176,9 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
+    /**
+     * Handle navigation between fragments when back button is clicked
+     */
     @Override
     public void onBackPressed() {
 

@@ -33,20 +33,27 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
+
+/**
+ * This class contains functions that realize the connection to the database
+ * and transactions needed by other classes
+ */
 
 public class DatabaseTransactions {
 
+    /**
+     * This class checks if a user can be saved to the database and if so it calls the function
+     * that it to the db
+     * @param user
+     * @param context
+     * @param transaction
+     */
     public static void checkBeforeSave(final User user, final Context context,
                                        final FragmentTransaction transaction) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -69,6 +76,13 @@ public class DatabaseTransactions {
                 });
     }
 
+    /**
+     * This function saves the user to the database and if that is successful it takes the user
+     * to the login fragment else it writes an error message
+     * @param user
+     * @param context
+     * @param transaction
+     */
     public static void registerUser(final User user, final Context context,
                                     final FragmentTransaction transaction) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -112,6 +126,13 @@ public class DatabaseTransactions {
         });
     }
 
+    /**
+     * This function checks if login credentials are correct and if so it takes the user to the
+     * GroupList fragment of the MainSectionActivity
+     * @param username
+     * @param pass
+     * @param context
+     */
     public static void userLogin(final String username, final String pass,
                                  final Context context) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -161,6 +182,10 @@ public class DatabaseTransactions {
         });
     }
 
+    /**
+     * This function is responsible to generate a 6 character long code for a group
+     * @return key
+     */
     public static String generateKey() {
         StringBuilder key = new StringBuilder();
         Random randnum = new Random();
@@ -175,6 +200,13 @@ public class DatabaseTransactions {
         return key.toString();
     }
 
+    /**
+     * This function saves a given Group to the database if successful it updates the list of the groups
+     * of the user
+     * @param group
+     * @param context
+     * @param userId
+     */
     public static void saveGroup(final Group group, final Context context, final int userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         final DocumentReference groupIds = db.collection("counters").document("group_ids");
@@ -224,6 +256,13 @@ public class DatabaseTransactions {
         });
     }
 
+    /**
+     * This function gets the groups that a specific user is part of and creates an adapter containing these
+     * groups
+     * @param context
+     * @param rv_groups
+     * @param adapter
+     */
     public static void getGroups(final Context context, final RecyclerView rv_groups, final GroupAdapter adapter) {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = context.getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
@@ -264,6 +303,11 @@ public class DatabaseTransactions {
 
     }
 
+    /**
+     * This function deletes a selected group from the database and updates the group adapter
+     * @param group
+     * @param context
+     */
     public static void deleteGroup(final Group group, final Context context) {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final DocumentReference groupCounters = db.collection("counters").document("group_ids");
@@ -312,6 +356,11 @@ public class DatabaseTransactions {
 
     }
 
+    /**
+     * This function adds a user to a group if a group with the given code can be found
+     * @param gId
+     * @param context
+     */
     public static void joinGroup(final String gId, final Context context) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = context.getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
@@ -351,6 +400,11 @@ public class DatabaseTransactions {
         });
     }
 
+    /**
+     * This function saves a question to the database
+     * @param question
+     * @param context
+     */
     public static void saveQuestion(final Question question, final Context context) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         final DocumentReference questionIds = db.collection("counters").document("question_ids");
@@ -395,6 +449,12 @@ public class DatabaseTransactions {
 
     }
 
+    /**
+     * This function sets a Question's active property in the database
+     * @param position
+     * @param status
+     * @param context
+     */
     public static void setQuestionActive(final int position, final boolean status, Context context) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
@@ -426,6 +486,13 @@ public class DatabaseTransactions {
         });
     }
 
+    /**
+     * This function creates a Database listener that listens to changes made to a question
+     * and if so it updates the question RecyclerView
+     * @param context
+     * @param recyclerView
+     * @return
+     */
     public static ListenerRegistration addGroupListener(final Context context, final RecyclerView recyclerView) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
@@ -444,6 +511,12 @@ public class DatabaseTransactions {
 
     }
 
+    /**
+     * This function sets the expired property of a question
+     * @param context
+     * @param position
+     * @param status
+     */
     public static void setExpired(final Context context, final int position, final boolean status) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
@@ -461,6 +534,12 @@ public class DatabaseTransactions {
         });
     }
 
+    /**
+     * This function saves an answer to a specific question to the database
+     * @param context
+     * @param answer
+     * @param qIndex
+     */
     public static void addAnswer(final Context context, final Answer answer, final int qIndex) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
@@ -482,6 +561,12 @@ public class DatabaseTransactions {
         });
     }
 
+    /**
+     * Gets the group and it's members in order to display the results of a question
+     * @param context
+     * @param qIndex
+     * @param recyclerView
+     */
     public static void getResultGroupAndUsers(final Context context, final int qIndex, final RecyclerView recyclerView){
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = context.getSharedPreferences("GROUP", Context.MODE_PRIVATE);
