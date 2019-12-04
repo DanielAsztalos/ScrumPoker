@@ -20,6 +20,7 @@ import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.AnswerAdapter;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
+import com.example.scrumpoker.model.Answer;
 import com.example.scrumpoker.model.Group;
 
 /**
@@ -52,6 +53,14 @@ public class AnswerFragment extends Fragment {
 
         // get the selected questions index from fragment arguments
         final int qNum = this.getArguments().getInt("selected_question");
+
+        SharedPreferences prefs = getContext().getSharedPreferences("LOGGED_USER", Context.MODE_PRIVATE);
+        int uid = prefs.getInt("id", 0);
+
+        if(!validate(group, uid, qNum)){
+            fragmentJump(group);
+        }
+
         // get the type of the possible answers and add them accordingly
         int[] numbers;
         if(group.getQuestions().get(qNum).getType() == 0) {
@@ -126,5 +135,30 @@ public class AnswerFragment extends Fragment {
     public void onStop() {
         countDownTimer.cancel();
         super.onStop();
+    }
+
+    private void fragmentJump(Group mItemSelected) {
+        QuestionListFragment fragment = new QuestionListFragment();
+        Bundle bundle = new Bundle();
+        // Put the selected group as an argument to the new fragment
+        bundle.putParcelable("item_selected_key", mItemSelected);
+        fragment.setArguments(bundle);
+
+        if(getContext() instanceof MainSectionActivity) {
+            MainSectionActivity mainSectionActivity = (MainSectionActivity) getContext();
+            mainSectionActivity.switchFragment(fragment);
+        }
+    }
+
+    private boolean validate(Group group, int id, int qNum) {
+        if(group.getQuestions().get(qNum).getExpiration() <= System.currentTimeMillis()) {
+            return false;
+        }
+        for(Answer a : group.getQuestions().get(qNum).getAnswers()) {
+            if(a.getAnswerBy() == id) {
+                return false;
+            }
+        }
+        return true;
     }
 }

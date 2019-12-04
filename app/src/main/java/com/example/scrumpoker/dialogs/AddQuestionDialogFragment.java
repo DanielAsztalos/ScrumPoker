@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,7 +75,7 @@ public class AddQuestionDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // create dialog builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater layoutInflater = requireActivity().getLayoutInflater();
         mainView = layoutInflater.inflate(R.layout.dialog_add_question, null);
         final SharedPreferences sharedPreferences = getActivity().getSharedPreferences("DATE", Context.MODE_PRIVATE);
@@ -84,7 +85,14 @@ public class AddQuestionDialogFragment extends DialogFragment {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        saveQuestion();
+                        if(((EditText) mainView.findViewById(R.id.et_question_content)).getText().toString().length() > 0){
+                            saveQuestion();
+                            dialog.dismiss();
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Didn't save Question because the Question content was empty!", Toast.LENGTH_LONG).show();
+                        }
+
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.example.scrumpoker.MainSectionActivity;
 import com.example.scrumpoker.R;
 import com.example.scrumpoker.adapter.ResultAdapter;
 import com.example.scrumpoker.helpers.DatabaseTransactions;
+import com.example.scrumpoker.model.Answer;
 import com.example.scrumpoker.model.Group;
 import com.example.scrumpoker.model.User;
 
